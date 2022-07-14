@@ -117,26 +117,33 @@ class Parser():
         sh=[4,6,9,11]
         message=self.message
         if int(message["Date"]["Minute"])>=60:
-            message["Date"]["Minute"] = int(message["Date"]["Minute"]) - 12
-            message["Date"]["Hour"] = int(message["Date"]["Hour"])+1
+            message["Date"]["Hour"] = int(message["Date"]["Hour"])+int(message["Date"]["Minute"])//60
+            message["Date"]["Minute"] = int(message["Date"]["Minute"])%60
         if int(message["Date"]["Hour"])>=24:
-           message["Date"]["Hour"]= str(int(message["Date"]["Hour"]) - 24)
-           message["Date"]["Day"]= str(int(message["Date"]["Day"])+1)
-        if int(message["Date"]["Month"]) in l:
-            if(int (message["Date"]["Day"])>31):
-                message["Date"]["Day"]=str(int (message["Date"]["Day"])-31)
-                message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
+           message["Date"]["Day"]= str(int(message["Date"]["Day"])+int(message["Date"]["Hour"])//24)
+           message["Date"]["Hour"]= str(int(message["Date"]["Hour"])%24)
+        while True:
+            if int(message["Date"]["Month"]) in l:
+                if(int (message["Date"]["Day"])>31):
+                    message["Date"]["Day"]=str(int (message["Date"]["Day"])-31)
+                    message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
+                else:
+                    break
             elif int(message["Date"]["Month"]) in sh:
-                if(int (message["Date"]["Day"])>30):
-                    message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
-                    message["Date"]["Day"]=str(int (message["Date"]["Day"])-30)
-            else:
-                if(int (message["Date"]["Day"])>28):
-                    message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
-                    message["Date"]["Day"]=str(int (message["Date"]["Day"])-28)
+                    if(int (message["Date"]["Day"])>30):
+                        message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
+                        message["Date"]["Day"]=str(int (message["Date"]["Day"])-30)
+                    else:
+                        break
+            elif int(message["Date"]["Month"]) == "2":
+                    if(int (message["Date"]["Day"])>28):
+                        message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
+                        message["Date"]["Day"]=str(int (message["Date"]["Day"])-28)
+                    else:
+                        break
         if int(message["Date"]["Month"])>12:
-            message["Date"]["Month"] = int(message["Date"]["Month"]) - 12
-            message["Date"]["Year"] = int(message["Date"]["Year"])+1
+            message["Date"]["Year"] = int(message["Date"]["Year"])+int(message["Date"]["Month"])//12
+            message["Date"]["Month"] = int(message["Date"]["Month"])%12
 
     def opperate(self, n):
         message=self.message
@@ -340,11 +347,12 @@ class Parser():
                 message["Params"]["Wait_until"] ="2 days"
                 continue
             if ("числа"==m[j])|("pm"==m[j])|("am"==m[j]):
-                if m[j-1].isdigit():
-                    message["Status"] = "Success"
-                    message["Date"]["Day"] =m[j-1]
-                    del k[-1]
-                    continue
+                if j-1>-1:
+                    if m[j-1].isdigit():
+                        message["Status"] = "Success"
+                        message["Date"]["Day"] =m[j-1]
+                        del k[-1]
+                        continue
             if m[j].count(".")==2:
                 h=m[j].partition(".")
                 o=h[2].partition(".")
