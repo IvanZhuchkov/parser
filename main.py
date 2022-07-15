@@ -144,7 +144,50 @@ class Parser():
         if int(message["Date"]["Month"])>12:
             message["Date"]["Year"] = int(message["Date"]["Year"])+int(message["Date"]["Month"])//12
             message["Date"]["Month"] = int(message["Date"]["Month"])%12
-
+    def digit(self, m):
+        if (m == "первый")|(m=="first")|(m=="первого"):
+            return "1"
+        elif (m == "второй")|(m=="second")|(m=="второго"):
+            return "2"
+        elif (m == "третий")|(m=="third")|(m=="третьего"):
+            return "3"
+        elif (m == "четвёртый")|(m=="first")|(m=="четвёртого"):
+            return "4"
+        elif (m == "пятый")|(m=="fifth")|(m=="пятого"):
+            return "5"
+        elif (m == "шестой")|(m=="sixth")|(m=="шестого"):
+            return "6"
+        elif (m == "седьмой")|(m=="seventh")|(m=="седьмого"):
+            return "7"
+        elif (m == "восьмой")|(m=="eighth")|(m=="восьмого"):
+            return "8"
+        elif (m == "девятый")|(m=="nineth")|(m=="девятого"):
+            return "9"
+        elif (m == "десятый")|(m=="tenth")|(m=="десятого"):
+            return "10"
+        elif (m == "одиннадцатый")|(m=="eleventh")|(m=="одиннадцатого"):
+            return "11"
+        elif (m == "двенадцатый")|(m=="twelfth")|(m=="двенадцатого"):
+            return "12"
+        elif (m == "тринадцатый")|(m=="thirteenth")|(m=="тринадцатого"):
+            return "13"
+        elif (m == "четырнадцатый")|(m=="forteenth")|(m=="четырнадцатого"):
+            return "14"
+        elif (m == "пятнадцатый")|(m=="fifteenth")|(m=="пятнадцатогого"):
+            return "15"
+        elif (m == "шестнадцатый")|(m=="sixteenth")|(m=="шестнадцатого"):
+            return "16"
+        elif (m == "семнадцатый")|(m=="seventeenth")|(m=="семнадцатого"):
+            return "17"
+        elif (m == "восемнадцатый")|(m=="eighteenth")|(m=="восемнадцатого"):
+            return "18"
+        elif (m == "девятнадцатый")|(m=="nineteenth")|(m=="девятнадцатого"):
+            return "19"
+        elif (m == "двадцатого")|(m=="twentyth")|(m == "двадцать"):
+            return "20"
+        elif (m == "тридцатого")|(m=="thirtieth")|(m == "тридцать"):
+            return "30"
+        return m
     def opperate(self, n):
         message=self.message
         n=n.lower()
@@ -160,17 +203,35 @@ class Parser():
         n=""
         k=[]
         s=0
-        e=[None,None,None]
+        e=[None,None,None,None]
         for j in range(i):
             e[0] = self.months(m[j])
             if e[0] :
                 message["Status"] = "Success"
-                message["Date"]["Month"] = e[0]
-                if j-1>-1:
-                    if m[j-1].isdigit():
-                        message["Date"]["Day"] = m[j-1]
+                if int(message["Date"]["Month"]) > int(e[0]):
+                    message["Date"]["Month"] = e[0]
+                    message["Date"]["Year"] = str(int(message["Date"]["Year"])+1)
+                else:
+                    message["Date"]["Month"] = e[0]
+                if j-2>-1:
+                    m[j-2]=self.digit(m[j-2])
+                    m[j-1]=self.digit(m[j-1])
+                    if (m[j-2].isdigit())&(m[j-1].isdigit()):
+                        message["Date"]["Day"]=str(int(m[j-2])+int(m[j-1]))
+                        del k[-1]
                         del k[-1]
                         continue
+                    elif m[j-1].isdigit():
+                       message["Date"]["Day"] = m[j-1]
+                       del k[-1]
+                       continue
+                elif j-1>-1:
+                   m[j-1]=self.digit(m[j-1])
+                   if m[j-1].isdigit():
+                       message["Date"]["Day"] = m[j-1]
+                       del k[-1]
+                       continue
+                    
             elif (("года" == m[j] )| ("year" == m[j]))&(m[j-1].isdigit()):
                 if j-1>-1:
                     message["Status"] = "Success"
@@ -347,12 +408,43 @@ class Parser():
                 message["Params"]["Wait_until"] ="2 days"
                 continue
             if ("числа"==m[j])|("pm"==m[j])|("am"==m[j]):
-                if j-1>-1:
-                    if m[j-1].isdigit():
+                if j-2>-1:
+                    m[j-2]=self.digit(m[j-2])
+                    m[j-1]=self.digit(m[j-1])
+                    if (m[j-2].isdigit())&(m[j-1].isdigit()):
                         message["Status"] = "Success"
-                        message["Date"]["Day"] =m[j-1]
-                        del k[-1]
-                        continue
+                        if int(m[j-2])+int(m[j-1])< int (message["Date"]["Day"]):
+                            message["Date"]["Day"]=str(int(m[j-2])+int(m[j-1]))
+                            message["Date"]["Month"] = str(int(message["Date"]["Month"])+1)
+                            del k[-1]
+                            del k[-1]
+                            continue
+                        else:
+                            message["Date"]["Day"]=str(int(m[j-2])+int(m[j-1]))
+                            del k[-1]
+                            del k[-1]
+                            continue
+                    elif m[j-1].isdigit():
+                            if int(m[j-1]) < int (message["Date"]["Day"]):
+                                message["Date"]["Day"]=str(int(m[j-1]))
+                                message["Date"]["Month"] = str(int(message["Date"]["Month"])+1)
+                                del k[-1]
+                                del k[-1]
+                                continue
+                elif j-1>-1:
+                    m[j-1]=self.digit(m[j-1])
+                    if m[j-1].isdigit():
+                        if int(m[j-1]) < int (message["Date"]["Day"]):
+                            message["Date"]["Day"]=str(int(m[j-1]))
+                            message["Date"]["Year"] = str(int(message["Date"]["Month"])+1)
+                            del k[-1]
+                            del k[-1]
+                            continue
+                        else:
+                            message["Status"] = "Success"
+                            message["Date"]["Day"] =m[j-1]
+                            del k[-1]
+                            continue
             if m[j].count(".")==2:
                 h=m[j].partition(".")
                 o=h[2].partition(".")
