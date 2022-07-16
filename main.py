@@ -1,4 +1,5 @@
 import time
+import copy
 class Parser():
     message={'Status': 'Failure',"Date":{"Day":None}, "Params":{"Repeat_always":None, "Day_of_week":None}}
     def __init__(self):
@@ -20,29 +21,29 @@ class Parser():
         message["Date"]["Hour"]=m[3][0]+m[3][1]
         message["Date"]["Minute"]=m[3][3]+m[3][4]
     def months(self,m):
-        if ("december" == m) | ("декабря" == m )| ("декабрь"==m )|("Dec"==m):
+        if ("december" == m) | ("декабря" == m )| ("декабрь"==m )|("Dec"==m)|("декабре"==m):
             return "12"
-        elif ("january" == m)|("январь" == m)|("января"==m)|("Jan"==m):
+        elif ("january" == m)|("январь" == m)|("января"==m)|("Jan"==m)|("январе"==m):
             return "1"
-        elif ("february" == m)|("февраль" == m)|("февраля"==m)|("Feb"==m):
+        elif ("february" == m)|("февраль" == m)|("февраля"==m)|("Feb"==m)|("феврале"==m):
             return "2"
-        elif ("march" == m)|("март" == m)|("март"==m)|("Mar"==m):
+        elif ("march" == m)|("март" == m)|("марта"==m)|("Mar"==m)|("марте"==m):
             return "3"
-        elif ("april" == m)|("апрель" == m)|("апреля"==m)|("Apr"==m):
+        elif ("april" == m)|("апрель" == m)|("апреля"==m)|("Apr"==m)|("апреле"==m):
             return "4"
-        elif ("may" == m)|("май" == m)|("мая"==m)|("May"==m):
+        elif ("may" == m)|("май" == m)|("мая"==m)|("May"==m)|("мае"==m):
             return "5"
-        elif ("june" == m)|("июнь" == m)|("июня"==m)|("Jun"==m):
+        elif ("june" == m)|("июнь" == m)|("июня"==m)|("Jun"==m)|("июне"==m):
             return "6"
-        elif ("jule" == m)|("июль" == m)|("июля"==m)|("Jul"==m):
+        elif ("jule" == m)|("июль" == m)|("июля"==m)|("Jul"==m)|("июле"==m):
             return "7"
-        elif ("august" == m)|("август" == m)|("августа"==m)|("Aug"==m):
+        elif ("august" == m)|("август" == m)|("августа"==m)|("Aug"==m)|("августе"==m):
             return "8"
-        elif ("september" == m)|("сентябрь" == m)|("сентября"==m)|("Sep"==m):
+        elif ("september" == m)|("сентябрь" == m)|("сентября"==m)|("Sep"==m)|("сентябре"==m):
             return "9"
-        elif ("october" == m)|("октябрь" == m)|("октября"==m)|("Oct"==m):
+        elif ("october" == m)|("октябрь" == m)|("октября"==m)|("Oct"==m)|("октябре"==m):
             return "10"
-        elif ("november" == m)|("ноябрь" == m)|("ноября"==m)|("Nov"==m):
+        elif ("november" == m)|("ноябрь" == m)|("ноября"==m)|("Nov"==m)|("ноябре"==m):
             return "11"
         return 0
     def week(self,m):
@@ -190,6 +191,8 @@ class Parser():
         return m
     def opperate(self, n):
         message=self.message
+        present={"Date"}
+        present =copy.deepcopy(message)
         n=n.lower()
         i=0
         m=[]
@@ -232,7 +235,7 @@ class Parser():
                        del k[-1]
                        continue
                     
-            elif (("года" == m[j] )| ("year" == m[j]))&(m[j-1].isdigit()):
+            elif (("года" == m[j] )| ("year" == m[j]))|("году"==m[j])&(m[j-1].isdigit()):
                 if j-1>-1:
                     message["Status"] = "Success"
                     message["Date"]["Year"]=m[j-1]
@@ -281,15 +284,47 @@ class Parser():
                         if ":" in m[j+1]:
                             h=m[j+1].partition(":")
                             message["Status"] = "Success"
-                            message["Date"]["Hour"] = h[0]
-                            message["Date"]["Minute"] = h[2]
+                            present["Status"] = "Success"
+                            if present == message:
+                                if h[0]==message["Date"]["Hour"]:
+                                    if h[2]<message["Date"]["Minute"]:
+                                        message["Date"]["Minute"] = h[2]
+                                        message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                    else:
+                                        message["Date"]["Minute"] = h[2]
+                                elif h[0]<message["Date"]["Hour"]:
+                                    message["Date"]["Hour"] = h[0]
+                                    message["Date"]["Minute"] = h[2]
+                                    message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                else:
+                                    message["Date"]["Hour"] = h[0]
+                                    message["Date"]["Minute"] = h[2]
+                            else:
+                                message["Date"]["Hour"] = h[0]
+                                message["Date"]["Minute"] = h[2]
                             s=1
                             continue
                         if "." in m[j+1]:
                             h=m[j+1].partition(".")
                             message["Status"] = "Success"
-                            message["Date"]["Hour"] = h[0]
-                            message["Date"]["Minute"] = h[2]
+                            present["Status"] = "Success"
+                            if present == message:
+                                if h[0]==message["Date"]["Hour"]:
+                                    if h[2]<message["Date"]["Minute"]:
+                                        message["Date"]["Minute"] = h[2]
+                                        message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                    else:
+                                        message["Date"]["Minute"] = h[2]
+                                elif h[0]<message["Date"]["Hour"]:
+                                    message["Date"]["Hour"] = h[0]
+                                    message["Date"]["Minute"] = h[2]
+                                    message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                else:
+                                    message["Date"]["Hour"] = h[0]
+                                    message["Date"]["Minute"] = h[2]
+                            else:
+                                message["Date"]["Hour"] = h[0]
+                                message["Date"]["Minute"] = h[2]
                             s=1
                             continue
                         e[1]=self.week(m[j+1])
@@ -349,6 +384,22 @@ class Parser():
                                     message["Status"] = "Success"
                                     message["Date"]["Hour"] =m[j+1]
                                     s=2
+                                    continue
+                        e[0] = self.months(m[j+1])
+                        if e[0] :
+                            message["Status"] = "Success"
+                            if int(message["Date"]["Month"]) > int(e[0]):
+                                message["Date"]["Month"] = e[0]
+                                message["Date"]["Day"] = "1"
+                                message["Date"]["Year"] = str(int(message["Date"]["Year"])+1)
+                            else:
+                                message["Date"]["Month"] = e[0]
+                                message["Date"]["Day"] = "1"
+                        if (j-1>-1 )& (j+2<i):
+                            if ("году"==m[j+2])&(m[j-1].isdigit()):
+                                    message["Status"] = "Success"
+                                    message["Date"]["Year"]=m[j-1]
+                                    del k[-1]
                                     continue
             elif ("на"==m[j])|("on"==m[j]):
                 if j+1 < i:
