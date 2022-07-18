@@ -62,19 +62,34 @@ class Parser():
         if ("sunday" == m)|("воскресенье" == m)|("воскресеньям"==m)|("воскресенье"==m)|("Sun"==m):
             return "7"
         return 0
-    def dict (self,m):
+    def dict (self,m,s):
         message=self.message
         if (m =="день")|(m =="day"):
-           return "day"
+            if s==1:
+                message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+            return "day"
         elif (m =="час")|(m =="hour"):
+            if s==1:
+                message["Date"]["Hour"]=str(int(message["Date"]["Hour"])+1)
             return "hour"
         elif (m =="минуту")|(m =="minute"):
+            if s==1:
+                message["Date"]["Minute"]=str(int(message["Date"]["Minute"])+1)
             return "minute"
         elif (m =="год")|(m =="year")|("году"==m):
+            if s==1:
+                message["Date"]["Year"]=str(int(message["Date"]["Year"])+1)
             return "year"
         elif (m =="неделю")|(m =="week"):
+            if s==1:
+                if message["Day_of_week"]=="1":
+                    message["Date"]["Day"]=str(int(message["Date"]["Day"])+7)
+                else:
+                    message["Date"]["Day"]=str(int(message["Date"]["Day"])+(8-int(message["Day_of_week"])))
             return "week"
         elif (m =="месяц")|(m =="month")|("месяце"==m):
+            if s==1:
+                message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
             return "month"
         return 0
     def adict(self, m,e):
@@ -140,48 +155,62 @@ class Parser():
             message["Date"]["Year"] = int(message["Date"]["Year"])+int(message["Date"]["Month"])//12
             message["Date"]["Month"] = int(message["Date"]["Month"])%12
     def digit(self, m):
-        if (m == "первый")|(m=="first")|(m=="первого"):
+        if (m == "первый")|(m=="first")|(m=="первого")|(m=="один"):
             return "1"
-        elif (m == "второй")|(m=="second")|(m=="второго"):
+        elif (m == "второй")|(m=="second")|(m=="второго")|(m=="два"):
             return "2"
-        elif (m == "третий")|(m=="third")|(m=="третьего"):
+        elif (m == "третий")|(m=="third")|(m=="третьего")|(m=="три"):
             return "3"
-        elif (m == "четвёртый")|(m=="first")|(m=="четвёртого"):
+        elif (m == "четвёртый")|(m=="first")|(m=="четвёртого")|(m=="четыре"):
             return "4"
-        elif (m == "пятый")|(m=="fifth")|(m=="пятого"):
+        elif (m == "пятый")|(m=="fifth")|(m=="пятого")|(m=="пять"):
             return "5"
-        elif (m == "шестой")|(m=="sixth")|(m=="шестого"):
+        elif (m == "шестой")|(m=="sixth")|(m=="шестого")|(m=="шесть"):
             return "6"
-        elif (m == "седьмой")|(m=="seventh")|(m=="седьмого"):
+        elif (m == "седьмой")|(m=="seventh")|(m=="седьмого")|(m=="семь"):
             return "7"
-        elif (m == "восьмой")|(m=="eighth")|(m=="восьмого"):
+        elif (m == "восьмой")|(m=="eighth")|(m=="восьмого")|(m=="восемь"):
             return "8"
-        elif (m == "девятый")|(m=="nineth")|(m=="девятого"):
+        elif (m == "девятый")|(m=="nineth")|(m=="девятого")|(m=="девять"):
             return "9"
-        elif (m == "десятый")|(m=="tenth")|(m=="десятого"):
+        elif (m == "десятый")|(m=="tenth")|(m=="десятого")|(m=="десять"):
             return "10"
-        elif (m == "одиннадцатый")|(m=="eleventh")|(m=="одиннадцатого"):
+        elif (m == "одиннадцатый")|(m=="eleventh")|(m=="одиннадцатого")|(m=="одиннадцать"):
             return "11"
-        elif (m == "двенадцатый")|(m=="twelfth")|(m=="двенадцатого"):
+        elif (m == "двенадцатый")|(m=="twelfth")|(m=="двенадцатого")|(m=="двенадцать"):
             return "12"
-        elif (m == "тринадцатый")|(m=="thirteenth")|(m=="тринадцатого"):
+        elif (m == "тринадцатый")|(m=="thirteenth")|(m=="тринадцатого")|(m=="тринадцать"):
             return "13"
-        elif (m == "четырнадцатый")|(m=="forteenth")|(m=="четырнадцатого"):
+        elif (m == "четырнадцатый")|(m=="forteenth")|(m=="четырнадцатого")|(m=="четырнадцать"):
             return "14"
-        elif (m == "пятнадцатый")|(m=="fifteenth")|(m=="пятнадцатогого"):
+        elif (m == "пятнадцатый")|(m=="fifteenth")|(m=="пятнадцатогого")|(m=="пятнадцать"):
             return "15"
-        elif (m == "шестнадцатый")|(m=="sixteenth")|(m=="шестнадцатого"):
+        elif (m == "шестнадцатый")|(m=="sixteenth")|(m=="шестнадцатого")|(m=="шестнадцать"):
             return "16"
-        elif (m == "семнадцатый")|(m=="seventeenth")|(m=="семнадцатого"):
+        elif (m == "семнадцатый")|(m=="seventeenth")|(m=="семнадцатого")|(m=="семнадцать"):
             return "17"
-        elif (m == "восемнадцатый")|(m=="eighteenth")|(m=="восемнадцатого"):
+        elif (m == "восемнадцатый")|(m=="eighteenth")|(m=="восемнадцатого")|(m=="восемнадцать"):
             return "18"
-        elif (m == "девятнадцатый")|(m=="nineteenth")|(m=="девятнадцатого"):
+        elif (m == "девятнадцатый")|(m=="nineteenth")|(m=="девятнадцатого")|(m=="девятнадцать"):
             return "19"
         elif (m == "двадцатого")|(m=="twentyth")|(m == "двадцать"):
             return "20"
         elif (m == "тридцатого")|(m=="thirtieth")|(m == "тридцать"):
             return "30"
+        elif (m == "сорокого")|(m=="fortieth")|(m == "сорок"):
+            return "40"
+        elif (m == "пятидесятого")|(m=="fiftieth")|(m == "пятдесят"):
+            return "50"
+        elif (m == "шестидесятого")|(m=="sixtieth")|(m == "шестьдесят"):
+            return "60"
+        elif (m == "семидесятого")|(m=="seventieth")|(m == "семьдесят"):
+            return "70"
+        elif (m == "восьидесятого")|(m=="eightieth")|(m == "восемьдесят"):
+            return "80"
+        elif (m == "девяностого")|(m=="ninetieth")|(m == "девяносто"):
+            return "90"
+        elif (m == "сотого")|(m=="hundredth")|(m == "сто"):
+            return "100"
         return m
     def opperate(self, n):
         message=self.message
@@ -256,9 +285,21 @@ class Parser():
                     del k[-1]
                     continue
             elif ("каждый"==m[j])|("every"==m[j])|("по"==m[j])|("каждую"==m[j])|("каждые"==m[j])|("каждое"==m[j]):
+                if j+3<i:
+                    m[j+1]=self.digit(m[j+1])
+                    m[j+2]=self.digit(m[j+2])
+                    if (m[j+1].isdigit())&(m[j+2].isdigit()):
+                        m[j+1]=str(int(m[j+1])+int(m[j+2]))
+                        e[2]=self.adict(m[j+3], m[j+1])
+                        if e[2]:
+                            message["Status"] = "Success"
+                            message["Params"]["Repeat_always"] = "Every " + m[j+1]+" "+e[2]
+                            s=3
+                            continue
                 if j+1<i :
                     e[1]=self.week(m[j+1])
-                    e[2]=self.dict(m[j+1])
+                    e[2]=self.dict(m[j+1],0)
+                    m[j+1]=self.digit(m[j+1])
                     if e[1]:
                         message["Params"]["Repeat_always"] = e[1]
                         message["Status"] = "Success"
@@ -363,7 +404,7 @@ class Parser():
                         if ("следующем"==m[j+1])|("следующий"==m[j+1])|("следующую"==m[j+1])|("следующие"==m[j+1])|("next"==m[j])|("следующей"==m[j+1])|("следующее"==m[j+1]):
                             if j+2<i :
                                 e[1]=self.week(m[j+2])
-                                e[2]=self.dict(m[j+2])
+                                e[2]=self.dict(m[j+2],1)
                                 if e[1]:
                                     message["Params"]["Wait_until"] = e[1]
                                     message["Status"] = "Success"
@@ -381,12 +422,13 @@ class Parser():
                                     s=2
                                     continue
                                 elif m[j+2].isdigit():
-                                    e[2]=self.adict(m[j+3])
-                                    if e[2]:
-                                        message["Status"] = "Success"
-                                        message["Params"]["Wait_until"] = "Next " + m[j+2]+" "+e[2]
-                                        s=3
-                                        continue
+                                    if j+3<i:
+                                        e[2]=self.adict(m[j+3])
+                                        if e[2]:
+                                            message["Status"] = "Success"
+                                            message["Params"]["Wait_until"] = "Next " + m[j+2]+" "+e[2]
+                                            s=3
+                                            continue
                         if m[j+1].isdigit():
                             if j+2 == i:
                               message["Status"]="Success"
@@ -451,7 +493,25 @@ class Parser():
                         s=1
                         continue
             elif ("через"==m[j])|("in"==m[j]):
-                if j+1<i :
+                if j+2<i :
+                    m[j+1]=self.digit(m[j+1])
+                    m[j+2]=self.digit(m[j+2])
+                    e[2]=self.dict(m[j+1])
+                    if e[2]:
+                        message["Status"] = "Success"
+                        message["Params"]["Wait_until"] = "Next "+e[2]
+                        s=1
+                        continue
+                    elif (m[j+1].isdigit())&(m[j+2].isdigit()):
+                        m[j+1]=str(int(m[j+1])+int(m[j+2]))
+                        e[2]=self.adict(m[j+3], m[j+1])
+                        if e[2]:
+                            message["Status"] = "Success"
+                            message["Params"]["Wait_until"] =m[j+1]+" " + e[2]
+                            s=3
+                            continue
+                if j+1<i:
+                    m[j+1]=self.digit(m[j+1])
                     e[2]=self.dict(m[j+1])
                     if e[2]:
                         message["Status"] = "Success"
@@ -539,15 +599,19 @@ class Parser():
             if m[j].count(".")==2:
                 h=m[j].partition(".")
                 o=h[2].partition(".")
-                message["Status"] = "Success"
-                message["Date"]["Day"] =h[0]
-                message["Date"]["Month"]=o[0]
-                message["Date"]["Year"]=o[2]
-                continue
+                if (int(h[0])<=31)|(int(o[0])<=12):
+                   message["Status"] = "Success"
+                   message["Date"]["Day"] =h[0]
+                   message["Date"]["Month"]=o[0]
+                   message["Date"]["Year"]=o[2]
+                   continue
+                else:
+                    raise ValueError
             if ":" in m[j]:
-                            h=m[j].partition(":")
-                            message["Status"] = "Success"
-                            present["Status"] = "Success"
+                h=m[j].partition(":")
+                message["Status"] = "Success"
+                present["Status"] = "Success"
+                if(h[0].isdigit()|h[2].isdigit()):
                             if present == message:
                                 if h[0]==message["Date"]["Hour"]:
                                     if h[2]<message["Date"]["Minute"]:
