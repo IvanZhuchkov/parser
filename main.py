@@ -145,7 +145,7 @@ class Parser():
                         message["Date"]["Day"]=str(int (message["Date"]["Day"])-30)
                     else:
                         break
-            elif int(message["Date"]["Month"]) == "2":
+            elif int(message["Date"]["Month"]) == 2:
                     if(int (message["Date"]["Day"])>28):
                         message["Date"]["Month"]=str(int(message["Date"]["Month"])+1)
                         message["Date"]["Day"]=str(int (message["Date"]["Day"])-28)
@@ -212,11 +212,82 @@ class Parser():
         elif (m == "сотого")|(m=="hundredth")|(m == "сто"):
             return "100"
         return m
+    def translit(self, m):
+        n=""
+        for i in m:
+            if i =="q":
+                n=n+"й"
+            elif i =="w":
+                n=n+"ц"
+            elif i =="e":
+                n=n+"у"
+            elif i =="r":
+                n=n+"к"
+            elif i =="t":
+                n=n+"е"
+            elif i =="y":
+                n=n+"н"
+            elif i =="u":
+                n=n+"г"
+            elif i =="i":
+                n=n+"ш"
+            elif i =="o":
+                n=n+"щ"
+            elif i =="p":
+                n=n+"з"
+            elif i =="[":
+                n=n+"х"
+            elif i =="]":
+                n=n+"ъ"
+            elif i =="a":
+                n=n+"ф"
+            elif i =="s":
+                n=n+"ы"
+            elif i =="d":
+                n=n+"в"
+            elif i =="f":
+                n=n+"а"
+            elif i =="g":
+                n=n+"п"
+            elif i =="h":
+                n=n+"р"
+            elif i =="j":
+                n=n+"о"
+            elif i =="k":
+                n=n+"л"
+            elif i =="l":
+                n=n+"д"
+            elif i ==";":
+                n=n+"ж"
+            elif i =="'":
+                n=n+"э"
+            elif i =="z":
+                n=n+"я"
+            elif i =="x":
+                n=n+"ч"
+            elif i =="c":
+                n=n+"с"
+            elif i =="v":
+                n=n+"м"
+            elif i =="b":
+                n=n+"и"
+            elif i =="n":
+                n=n+"т"
+            elif i =="m":
+                n=n+"ь"
+            elif i ==",":
+                n=n+"б"
+            elif i ==".":
+                n=n+"ю"
+            else:
+                n=n+i
+        return n
+
+
     def opperate(self, n):
         message=self.message
         present={"Date"}
         present =copy.deepcopy(message)
-        n=n.lower()
         i=0
         m=[]
         while 1:
@@ -252,7 +323,7 @@ class Parser():
                            message["Date"]["Day"] = m[j-1]
                            del k[-1]
                            continue
-                    elif j-1>-1:
+                    if j-1>-1:
                        m[j-1]=self.digit(m[j-1])
                        if m[j-1].isdigit():
                            message["Date"]["Day"] = m[j-1]
@@ -446,7 +517,6 @@ class Parser():
                                   message["Date"]["Minute"] = "00"
                               s=1
                               continue
-                        print(1)
                         if j+2<i:
                                 if ("часов"==m[j+2])|("pm"==m[j+2])|("am"==m[j+2]):
                                     message["Status"]="Success"
@@ -480,23 +550,42 @@ class Parser():
                                     message["Date"]["Year"]=m[j+1]
                                     s=2
                                     continue
+                        if ("выходные"==m[j+1])|("weekend"==m[j+1]):
+                            message["Status"] = "Success"
+                            y = 6 - int (message["Day_of_week"]) 
+                            if (y<=0):
+                                message["Date"]["Day"]= str(int(message["Date"]["Day"])+(7-abs(y)))
+                            else :
+                                message["Date"]["Day"]= str(int(message["Date"]["Day"])+y)
+                            s=1
+                            continue
             elif ("на"==m[j])|("on"==m[j]):
                 if j+1 < i:
                     if ("выходных"==m[j+1])|("weekend"==m[j+1]):
                         message["Status"] = "Success"
                         message["Params"]["Day_of_week"] = "Saturday and Sunday"
+                        y = 6 - int (message["Day_of_week"]) 
+                        if (y<=0):
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+(7-abs(y)))
+                        else :
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+y)
                         s=1
                         continue
                     if ("неделе"==m[j+1])|("week"==m[j]):
                         message["Status"] = "Success"
                         message["Params"]["Day_of_week"] = "Monday, Tuesday, Wednesday, Thursday, Friday"
+                        y = 1 - int (message["Day_of_week"]) 
+                        if (y<=0):
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+(7-abs(y)))
+                        else :
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+y)
                         s=1
                         continue
             elif ("через"==m[j])|("in"==m[j]):
                 if j+2<i :
                     m[j+1]=self.digit(m[j+1])
                     m[j+2]=self.digit(m[j+2])
-                    e[2]=self.dict(m[j+1])
+                    e[2]=self.dict(m[j+1],1)
                     if e[2]:
                         message["Status"] = "Success"
                         message["Params"]["Wait_until"] = "Next "+e[2]
@@ -512,7 +601,7 @@ class Parser():
                             continue
                 if j+1<i:
                     m[j+1]=self.digit(m[j+1])
-                    e[2]=self.dict(m[j+1])
+                    e[2]=self.dict(m[j+1],1)
                     if e[2]:
                         message["Status"] = "Success"
                         message["Params"]["Wait_until"] = "Next "+e[2]
@@ -577,9 +666,9 @@ class Parser():
                             continue
                     elif m[j-1].isdigit():
                             if int(m[j-1]) < int (message["Date"]["Day"]):
+                                message["Status"] = "Success"
                                 message["Date"]["Day"]=str(int(m[j-1]))
                                 message["Date"]["Month"] = str(int(message["Date"]["Month"])+1)
-                                del k[-1]
                                 del k[-1]
                                 continue
                 elif j-1>-1:
@@ -678,10 +767,23 @@ class Parser():
                 if message["Params"]["Day_of_week"] =="7":
                     message["Params"]["Day_of_week"] ="Sunday"
         self.check()
-        print(message)
 def main():
     newp = Parser()
     n=input("Remaind: ")
+    m=copy.deepcopy(n)
+    n=n.lower()
+    m=m.lower()
+    m=newp.translit(n)
     newp.opperate(n)
+    if newp.message["Status"]=="Success":
+        print(newp.message)
+        return 0
+    else:
+        ne=Parser()
+        ne.opperate(m)
+        print(ne.message)
+
+
+
 if __name__=="__main__":
     main()
