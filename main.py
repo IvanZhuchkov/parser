@@ -405,7 +405,7 @@ class Parser():
                             message["Params"]["Repeat_always"] = "Every " + m[j+1]+" "+e[2]
                             s=2
                             continue
-            elif("в" == m[j] ):
+            elif("в" == m[j] )|("on"==m[j]):
                     if (j+1<i):
                         if ":" in m[j+1]:
                             h=m[j+1].partition(":")
@@ -500,6 +500,7 @@ class Parser():
                                             message["Params"]["Wait_until"] = "Next " + m[j+2]+" "+e[2]
                                             s=3
                                             continue
+                        m[j+1]=self.digit(m[j+1])
                         if m[j+1].isdigit():
                             if j+2 == i:
                               message["Status"]="Success"
@@ -517,6 +518,26 @@ class Parser():
                                   message["Date"]["Minute"] = "00"
                               s=1
                               continue
+                        if j+3<i: 
+                                m[j+2]=self.digit(m[j+2])
+                                if ("часов"==m[j+3])|("pm"==m[j+3])|("am"==m[j+3])|("час"==m[j+3])|("часа"==m[j+3]):
+                                    m[j+1]=str(int(m[j+1])+ int( m[j+2]))
+                                    if m[j+1].isdigit():
+                                        message["Status"]="Success"
+                                        present["Status"]="Success"
+                                        if present == message:
+                                          if m[j+1]<message["Date"]["Hour"]:
+                                             message["Date"]["Hour"] = m[j+1]
+                                             message["Date"]["Minute"] = "00"
+                                             message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                          else:
+                                              message["Date"]["Hour"] = m[j+1]
+                                              message["Date"]["Minute"] = "00"
+                                        else:
+                                            message["Date"]["Hour"] = m[j+1]
+                                            message["Date"]["Minute"] = "00"
+                                        s=3
+                                        continue
                         if j+2<i:
                                 if ("часов"==m[j+2])|("pm"==m[j+2])|("am"==m[j+2]):
                                     message["Status"]="Success"
