@@ -1,5 +1,6 @@
 import time
 import copy
+import random
 class Parser():
     message={'Status': 'Failure',"Date":{"Day":None}, "Params":{"Repeat_always":None, "Day_of_week":None}}
     def __init__(self):
@@ -62,7 +63,7 @@ class Parser():
         if ("sunday" == m)|("воскресенье" == m)|("воскресеньям"==m)|("воскресенье"==m)|("Sun"==m):
             return "7"
         return 0
-    def dict (self,m,s):
+    def dikt (self,m,s):
         message=self.message
         if (m =="день")|(m =="day"):
             if s==1:
@@ -369,7 +370,7 @@ class Parser():
                             continue
                 if j+1<i :
                     e[1]=self.week(m[j+1])
-                    e[2]=self.dict(m[j+1],0)
+                    e[2]=self.dikt(m[j+1],0)
                     m[j+1]=self.digit(m[j+1])
                     if e[1]:
                         message["Params"]["Repeat_always"] = e[1]
@@ -405,7 +406,7 @@ class Parser():
                             message["Params"]["Repeat_always"] = "Every " + m[j+1]+" "+e[2]
                             s=2
                             continue
-            elif("в" == m[j] )|("on"==m[j]):
+            elif("в" == m[j] )|("on"==m[j])|("во"==m[j]):
                     if (j+1<i):
                         if ":" in m[j+1]:
                             h=m[j+1].partition(":")
@@ -413,12 +414,12 @@ class Parser():
                             present["Status"] = "Success"
                             if present == message:
                                 if h[0]==message["Date"]["Hour"]:
-                                    if h[2]<message["Date"]["Minute"]:
+                                    if int(h[2])<int(message["Date"]["Minute"]):
                                         message["Date"]["Minute"] = h[2]
                                         message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
                                     else:
                                         message["Date"]["Minute"] = h[2]
-                                elif h[0]<message["Date"]["Hour"]:
+                                elif int(h[0])<int(message["Date"]["Hour"]):
                                     message["Date"]["Hour"] = h[0]
                                     message["Date"]["Minute"] = h[2]
                                     message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
@@ -436,12 +437,12 @@ class Parser():
                             present["Status"] = "Success"
                             if present == message:
                                 if h[0]==message["Date"]["Hour"]:
-                                    if h[2]<message["Date"]["Minute"]:
+                                    if int(h[2])<int(message["Date"]["Minute"]):
                                         message["Date"]["Minute"] = h[2]
                                         message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
                                     else:
                                         message["Date"]["Minute"] = h[2]
-                                elif h[0]<message["Date"]["Hour"]:
+                                elif int(h[0])<int(message["Date"]["Hour"]):
                                     message["Date"]["Hour"] = h[0]
                                     message["Date"]["Minute"] = h[2]
                                     message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
@@ -475,7 +476,7 @@ class Parser():
                         if ("следующем"==m[j+1])|("следующий"==m[j+1])|("следующую"==m[j+1])|("следующие"==m[j+1])|("next"==m[j])|("следующей"==m[j+1])|("следующее"==m[j+1]):
                             if j+2<i :
                                 e[1]=self.week(m[j+2])
-                                e[2]=self.dict(m[j+2],1)
+                                e[2]=self.dikt(m[j+2],1)
                                 if e[1]:
                                     message["Params"]["Wait_until"] = e[1]
                                     message["Status"] = "Success"
@@ -542,8 +543,23 @@ class Parser():
                                 if ("часов"==m[j+2])|("pm"==m[j+2])|("am"==m[j+2]):
                                     message["Status"]="Success"
                                     present["Status"]="Success"
-                                    if present == message:
-                                      if m[j+1]<message["Date"]["Hour"]:
+                                    if j+3<i:
+                                          if (m[j+3]=="вечера")|(m[j+3]=="evening")|(m[j+3]=="дня"):
+                                              if present == message:
+                                                  if int(m[j+1])<int(message["Date"]["Hour"]):
+                                                     message["Date"]["Hour"] = str(int (m[j+1])+12)
+                                                     message["Date"]["Minute"] = "00"
+                                                     message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                                  else:
+                                                      message["Date"]["Hour"] = str(int(m[j+1])+12)
+                                                      message["Date"]["Minute"] = "00"
+                                              else:
+                                                    message["Date"]["Hour"] = str(int(m[j+1])+12)
+                                                    message["Date"]["Minute"] = "00"
+                                          s=3
+                                          continue
+                                    if present == message:    
+                                      if int(m[j+1])<int(message["Date"]["Hour"]):
                                          message["Date"]["Hour"] = m[j+1]
                                          message["Date"]["Minute"] = "00"
                                          message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
@@ -555,6 +571,23 @@ class Parser():
                                         message["Date"]["Minute"] = "00"
                                     s=2
                                     continue
+                                elif (m[j+2]=="вечера")|("evening"==m[j+2])|(m[j+2]=="дня"):
+                                    message["Status"]="Success"
+                                    present["Status"]="Success"
+                                    if present == message:
+                                      if int(m[j+1])<int(message["Date"]["Hour"]):
+                                         message["Date"]["Hour"] = str(int (m[j+1])+12)
+                                         message["Date"]["Minute"] = "00"
+                                         message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
+                                      else:
+                                          message["Date"]["Hour"] = str(int(m[j+1])+12)
+                                          message["Date"]["Minute"] = "00"
+                                    else:
+                                        message["Date"]["Hour"] = m[j+1]
+                                        message["Date"]["Minute"] = "00"
+                                    s=2
+                                    continue
+
                         e[0] = self.months(m[j+1])
                         if e[0] :
                             message["Status"] = "Success"
@@ -562,9 +595,13 @@ class Parser():
                                 message["Date"]["Month"] = e[0]
                                 message["Date"]["Day"] = "1"
                                 message["Date"]["Year"] = str(int(message["Date"]["Year"])+1)
+                                s=2
+                                continue
                             else:
                                 message["Date"]["Month"] = e[0]
                                 message["Date"]["Day"] = "1"
+                                s=2
+                                continue
                         if (j+2<i):
                             if ("году"==m[j+2])&(m[j+1].isdigit()):
                                     message["Status"] = "Success"
@@ -595,21 +632,36 @@ class Parser():
                     if ("неделе"==m[j+1])|("week"==m[j]):
                         message["Status"] = "Success"
                         message["Params"]["Day_of_week"] = "Monday, Tuesday, Wednesday, Thursday, Friday"
-                        y = 1 - int (message["Day_of_week"]) 
-                        if (y<=0):
-                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+(7-abs(y)))
-                        else :
-                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+y)
+                        random.seed()
+                        if int(message["Day_of_week"])>=5:
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+ random.randrange(3,6))
+                        else:
+                            r=6-int(message["Day_of_week"])
+                            message["Date"]["Day"]= str(int(message["Date"]["Day"])+ random.randrange(1,r))
                         s=1
                         continue
+                    if ("следующей"==m[j+1])|("next"==m[j+1]):
+                        if j+2<i:
+                            if ("неделе"==m[j+2])|("week"==m[j+2]):
+                                message["Status"] = "Success"
+                                message["Params"]["Day_of_week"] = "Monday, Tuesday, Wednesday, Thursday, Friday"
+                                random.seed()
+                                if int(message["Day_of_week"])>=5:
+                                    message["Date"]["Day"]= str(int(message["Date"]["Day"])+ random.randrange(3,6))
+                                else:
+                                    r=6-int(message["Day_of_week"])
+                                    message["Date"]["Day"]= str(int(message["Date"]["Day"])+ random.randrange(1,r)+7)
+                                s=1
+                                continue
             elif ("через"==m[j])|("in"==m[j]):
                 if j+2<i :
                     m[j+1]=self.digit(m[j+1])
                     m[j+2]=self.digit(m[j+2])
-                    e[2]=self.dict(m[j+1],1)
+                    e[2]=self.dikt(m[j+1],1)
                     if e[2]:
                         message["Status"] = "Success"
                         message["Params"]["Wait_until"] = "Next "+e[2]
+                        self.check()
                         s=1
                         continue
                     elif (m[j+1].isdigit())&(m[j+2].isdigit()):
@@ -618,14 +670,16 @@ class Parser():
                         if e[2]:
                             message["Status"] = "Success"
                             message["Params"]["Wait_until"] =m[j+1]+" " + e[2]
+                            self.check()
                             s=3
                             continue
                 if j+1<i:
                     m[j+1]=self.digit(m[j+1])
-                    e[2]=self.dict(m[j+1],1)
+                    e[2]=self.dikt(m[j+1],1)
                     if e[2]:
                         message["Status"] = "Success"
                         message["Params"]["Wait_until"] = "Next "+e[2]
+                        self.check()
                         s=1
                         continue
                     elif m[j+1].isdigit():
@@ -633,6 +687,7 @@ class Parser():
                         if e[2]:
                             message["Status"] = "Success"
                             message["Params"]["Wait_until"] =m[j+1]+" " + e[2]
+                            self.check()
                             s=2
                             continue
             if ("утром"==m[j])|("morning"==m[j]):
@@ -692,7 +747,7 @@ class Parser():
                                 message["Date"]["Month"] = str(int(message["Date"]["Month"])+1)
                                 del k[-1]
                                 continue
-                elif j-1>-1:
+                if j-1>-1:
                     m[j-1]=self.digit(m[j-1])
                     if m[j-1].isdigit():
                         if int(m[j-1]) < int (message["Date"]["Day"]):
@@ -709,14 +764,27 @@ class Parser():
             if m[j].count(".")==2:
                 h=m[j].partition(".")
                 o=h[2].partition(".")
-                if (int(h[0])<=31)|(int(o[0])<=12):
-                   message["Status"] = "Success"
-                   message["Date"]["Day"] =h[0]
-                   message["Date"]["Month"]=o[0]
-                   message["Date"]["Year"]=o[2]
-                   continue
+                message["Status"] = "Success"
+                message["Date"]["Day"] =h[0]
+                message["Date"]["Month"]=o[0]
+                if int(o[2])<1000:
+                    message["Date"]["Year"]=str(int(o[2])+2000)
                 else:
-                    raise ValueError
+                    message["Date"]["Year"]=o[2]
+                continue
+            if m[j].count("-")==2:
+                h=m[j].partition("-")
+                o=h[2].partition("-")
+                message["Status"] = "Success"
+                message["Date"]["Day"] =h[0]
+                message["Date"]["Month"]=o[0]
+                if int(o[2])<1000:
+                    message["Date"]["Year"]=str(int(o[2])+2000)
+                else:
+                    message["Date"]["Year"]=o[2]
+                continue
+                continue
+          
             if ":" in m[j]:
                 h=m[j].partition(":")
                 message["Status"] = "Success"
@@ -724,12 +792,12 @@ class Parser():
                 if(h[0].isdigit()|h[2].isdigit()):
                             if present == message:
                                 if h[0]==message["Date"]["Hour"]:
-                                    if h[2]<message["Date"]["Minute"]:
+                                    if int(h[2])<int(message["Date"]["Minute"]):
                                         message["Date"]["Minute"] = h[2]
                                         message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
                                     else:
                                         message["Date"]["Minute"] = h[2]
-                                elif h[0]<message["Date"]["Hour"]:
+                                elif int(h[0])<int(message["Date"]["Hour"]):
                                     message["Date"]["Hour"] = h[0]
                                     message["Date"]["Minute"] = h[2]
                                     message["Date"]["Day"]=str(int(message["Date"]["Day"])+1)
@@ -741,6 +809,7 @@ class Parser():
                                 message["Date"]["Minute"] = h[2]
                             s=1
                             continue
+
             if s==0:
                 k.append(m[j])
             else:
@@ -772,7 +841,7 @@ class Parser():
                 if message["Params"]["Repeat_always"] =="7":
                     message["Params"]["Repeat_always"] ="Sunday"
                     message["Params"]["Day_of_week"] ="Sunday"
-        if message["Params"]["Repeat_always"] != None:
+        if message["Params"]["Day_of_week"] != None:
                 if message["Params"]["Day_of_week"] =="1":
                     message["Params"]["Day_of_week"] ="Monday"
                 elif message["Params"]["Day_of_week"] =="2":
@@ -787,7 +856,6 @@ class Parser():
                     message["Params"]["Day_of_week"] ="Saturday"
                 if message["Params"]["Day_of_week"] =="7":
                     message["Params"]["Day_of_week"] ="Sunday"
-        self.check()
 def main():
     newp = Parser()
     n=input("Remaind: ")
